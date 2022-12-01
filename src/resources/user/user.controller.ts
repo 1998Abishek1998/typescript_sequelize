@@ -1,30 +1,36 @@
 import { RequestHandler } from "express";
 import AppError from "../../utils/appError";
 import { catchAsync } from "../../utils/catchAsync";
+import { createToken } from "../../utils/token";
 import User from './user.model';
-
-export const checkUserId: RequestHandler = catchAsync(async(req, res, next) => {
-    var user = await User.findByPk(req.params.id)
-    if(!user) return next(new AppError(404, `User with id: ${req.params.id} cannot be found`))
-    else {
-        req.user = user
-        next()
-    } 
-})
 
 export const createUser: RequestHandler = catchAsync(async(req, res, next) =>{
     var user = await User.create({...req.body})
+    const token = createToken(user)
     return res.status(200).json({
         message: 'User created successfully',
-        data: user
+        data: user,
+        token
     })
 })
 
-export const passwordValidation: RequestHandler = catchAsync(async(req, res, next) =>{
-    const boolVal = User.validatePassword(req.user, req.body.password)
+export const loginUser: RequestHandler = catchAsync(async(req, res, next) =>{
+    const { name, password} = req.body
+    if(!name || !password) return next(new AppError(400, 'Please provide both Email and Password'))
+    var user = await User.findOne({
+        where: {
+            name: name
+        },
+    })
+    if(!user) return next(new AppError(404, 'Please provide correct credentials'))
+    
+    const boolVal = User.validatePassword(user, password)
     if(!boolVal) return next(new AppError(404, 'Passwords did not matched'))
+    
+    const token = createToken(user)
     return res.status(200).json({
-        message: 'User password',
+        message: 'User logged in successfully',
+        token
     })
 })
 

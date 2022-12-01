@@ -1,6 +1,7 @@
 import { Router } from "express";
+import { authenticated } from "../../middleware/jwt.middleware";
 import AppRouter from "../../utils/interface/appRouter.interface";
-import { checkUserId, createUser, deleteUser, getAllUsers, passwordValidation, retreiveUserById } from "./user.controller";
+import { createUser, deleteUser, getAllUsers, loginUser, retreiveUserById } from "./user.controller";
 
 class UserRouter implements AppRouter{
     public path = '/user'
@@ -12,13 +13,14 @@ class UserRouter implements AppRouter{
 
     private initializeRoutes(): void {
         this.router.route(`${this.path}`)
-            .get(getAllUsers)
+            .get(authenticated, getAllUsers)
             .post(createUser)
         
         this.router.route(`${this.path}/:id`)
-            .get(checkUserId, retreiveUserById)
-            .delete(checkUserId, deleteUser)
-            .post(checkUserId,passwordValidation)    
+            .get(authenticated, retreiveUserById)
+            .delete(authenticated, deleteUser)
+        
+        this.router.post(`${this.path}/login`, loginUser)
     }
 }
 
