@@ -40,10 +40,10 @@ class App {
     }
 
     private initializeErrorHandling(): void{
-        this.express.use(errorMiddleware)
         this.express.all('*', (req, res, next) => {
             next(new AppError(404, `Can't find ${req.originalUrl} on this server!`));
         })
+        this.express.use(errorMiddleware)
     }
 
     private initializeDBConnection(): void{
