@@ -5,7 +5,15 @@ import { createToken } from "../../utils/token";
 import User from './user.model';
 
 export const createUser: RequestHandler = catchAsync(async(req, res, next) =>{
-    var user = await User.create({...req.body})
+    const { name, email, password, role, age} = req.body
+    if(!email || !password || !age || !name) return next(new AppError(400, 'Please provide all the values: email, password, name and age'))
+    var user = await User.create({
+        name: name,
+        email:email,
+        password: password,
+        age: age,
+        role: role
+    })
     const token = createToken(user)
     return res.status(200).json({
         message: 'User created successfully',
@@ -22,6 +30,7 @@ export const loginUser: RequestHandler = catchAsync(async(req, res, next) =>{
             name: name
         },
     })
+
     if(!user) return next(new AppError(404, 'Please provide correct credentials'))
     
     const boolVal = User.validatePassword(user, password)
@@ -30,7 +39,35 @@ export const loginUser: RequestHandler = catchAsync(async(req, res, next) =>{
     const token = createToken(user)
     return res.status(200).json({
         message: 'User logged in successfully',
+        data: user,
         token
+    })
+})
+
+export const beFriends: RequestHandler = catchAsync( async(req, res, next) => {
+    const fromUser = await User.update({
+        friedns: req.params.id
+    },{
+        where: {
+            id: req.user.id
+        }
+    })
+    if(!fromUser) return next(new AppError(404, 'User not found'))
+    const toUser = await User.update({
+        friends: req.user.id
+    },{
+        where:{
+            id: req.params.id
+        }
+    }) 
+    if(!toUser) return next(new AppError(404, 'User not found'))
+
+    res.status(200).json({
+        message: 'Friend Added',
+        data: {
+            fromUser,
+            toUser
+        }
     })
 })
 

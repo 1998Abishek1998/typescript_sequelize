@@ -5,7 +5,8 @@ import Token from "./interface/token.interface";
 export const createToken = (user: User): string => {
     return sign(
         {
-            id: user.id
+            id: user.id,
+            role: user.role
         },
         process.env.JWT_SECRET_KEY as Secret,
         {
