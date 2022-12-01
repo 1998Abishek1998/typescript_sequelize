@@ -75,8 +75,4 @@ export const errorMiddleware = (
 
     if(process.env.NODE_ENV === 'development') sendDevError(err, req, res)
     if(process.env.NODE_ENV === 'production') sendProdError(err, req, res)
-    // res.status(statusCode).send({
-    //     status,
-    //     message
-    // })
 }
