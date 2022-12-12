@@ -1,6 +1,7 @@
 import { Router } from "express";
+import { adminAuthenticate, authenticated } from "../../middleware/jwt.middleware";
 import AppRouter from "../../utils/interface/appRouter.interface";
-import { checkPostId, createPost, deletePost, getAllPosts, retreivePostById } from "./post.controller";
+import { createPost, deletePost, getAllPosts, retreivePostById } from "./post.controller";
 
 class PostRouter implements AppRouter{
     public path = '/post'
@@ -12,12 +13,12 @@ class PostRouter implements AppRouter{
 
     private initializeRoutes(): void {
         this.router.route(`${this.path}`)
-            .get(getAllPosts)
-            .post(createPost)
+            .get(adminAuthenticate, getAllPosts)
+            .post(authenticated, createPost)
         
         this.router.route(`${this.path}/:id`)
-            .get(checkPostId, retreivePostById)
-            .delete(checkPostId, deletePost)    
+            .get(authenticated, retreivePostById)
+            .delete(authenticated, deletePost)    
     }
 }
 

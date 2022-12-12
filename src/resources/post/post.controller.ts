@@ -1,16 +1,21 @@
 import { RequestHandler } from "express";
 import AppError from "../../utils/appError";
 import { catchAsync } from "../../utils/catchAsync";
+import User from "../user/user.model";
 import Post from "./post.model";
 
-export const checkPostId: RequestHandler = catchAsync(async(req, res, next) => {
-    var post = await Post.findByPk(req.params.id)
-    if(!post) return next(new AppError(404, `Post with id: ${req.params.id} cannot be found`))
-    else next() 
-})
-
 export const createPost: RequestHandler = catchAsync(async(req, res, next) =>{
-    var post = await Post.create({...req.body})
+    const {UserId, title, description } = req.body
+    if(!req.user.id) return next(new AppError(400, 'Post can only be created by our app verified users'))
+    if(UserId){
+        const tempUser = await User.findByPk(UserId)
+        if(!tempUser) return next(new AppError(404, 'Post can only be created by our app verified users'))
+    }
+    var post = await Post.create({
+        title: title,
+        description: description,
+        UserId: UserId ? UserId : req.user.id
+    })
     return res.status(200).json({
         message: 'Post created successfully',
         data: post

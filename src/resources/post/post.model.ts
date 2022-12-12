@@ -1,4 +1,6 @@
-import { Column, DataType, Model, Table } from "sequelize-typescript"
+import { DataTypes, UUIDV4 } from "sequelize"
+import { Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript"
+import User from "../user/user.model"
 
 @Table({
     timestamps: true,
@@ -6,6 +8,26 @@ import { Column, DataType, Model, Table } from "sequelize-typescript"
 })
 
 class Post extends Model{
+    @PrimaryKey
+    @Column({
+        type: DataTypes.UUID,
+        defaultValue: UUIDV4,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: false,
+        unique: true,
+        validate: {
+            isUUID: 4
+        }
+    })
+    id?: string
+
+    @ForeignKey(() => User)
+    @Column({
+        type: DataTypes.UUID
+    })
+    UserId?: string
+
     @Column({
         type: DataType.STRING,
         allowNull: false,

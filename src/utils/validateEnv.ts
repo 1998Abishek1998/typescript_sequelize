@@ -9,6 +9,8 @@ export const validateEnv = ():void => {
         DB_USER: str(),
         DB_PASSWORD: str(),
         DB_HOST: str(),
+        JWT_SECRET_KEY : str(),
+        JWT_EXPIRES_IN: str(),
         DB_PORT: port({ default: 3306 }),
         SERVER_PORT: port({ default: 5000 })
     })

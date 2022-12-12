@@ -1,5 +1,7 @@
 import { compareSync, hashSync } from "bcrypt"
-import { BeforeCreate, Column, DataType, Model, Table } from "sequelize-typescript"
+import { DataTypes, UUIDV4 } from "sequelize";
+import { BeforeCreate, BelongsToMany, Column, DataType, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript"
+import Post from "../post/post.model";
 
 @Table({
     timestamps: true,
@@ -7,6 +9,19 @@ import { BeforeCreate, Column, DataType, Model, Table } from "sequelize-typescri
 })
 
 class User extends Model{
+    @PrimaryKey
+    @Column({
+        type: DataTypes.UUID,
+        defaultValue: UUIDV4,
+        autoIncrement: false,
+        allowNull: false,
+        primaryKey: true,
+        validate:{
+            isUUID: 4
+        }
+    })
+    id!: string;
+    
     @Column({
         type: DataType.STRING,
         allowNull: false,
@@ -18,11 +33,38 @@ class User extends Model{
     })
     name!: string
 
+    @HasMany(() => Post)
+    posts!: Post[];
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        unique: true,
+        validate:{
+            isEmail: true
+        }
+    })
+    email!: string
+
+    @Column({
+        type: DataType.ENUM,
+        allowNull: false,
+        values:['admin','customer','staff'],
+    })
+    role!: string
+
+    @BelongsToMany(() => User, () => FriendList, 'UserId', 'FriendId')
+    friends!: [];
+
     @Column({
         type: DataType.STRING,
         allowNull: false,
         validate: {
             min: 8,
+            max: 15
+        },
+        set(value: string){
+            this.setDataValue('password', hashSync(value, 10))
         }
     })
     password!: string
@@ -37,20 +79,26 @@ class User extends Model{
     })
     age!: string
 
-    @BeforeCreate
-    static beforeCreateHook(user: any): void {
-        if(user.password) {
-            user.password =  hashSync(user.password, 10)
-        }
-    }
-
     static validatePassword(user: any, password: string): boolean{
         return compareSync(password, user.password)
     }
+    static addFriend(user:any): any{
+        console.log(user,'asdsad')
+    }
 }
 
-// User.beforeCreate(async (user, options) => {
-//     console.log(user, options)
-// })
+@Table
+export class FriendList extends Model{
+
+    @Column({
+        type: DataTypes.UUID
+    })
+    UserId?: string
+
+    @Column({
+        type: DataTypes.UUID
+    })
+    FriendId?: string
+}
 
 export default User
