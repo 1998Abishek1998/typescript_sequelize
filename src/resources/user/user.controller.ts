@@ -1,10 +1,8 @@
 import { RequestHandler } from "express";
-import { literal } from "sequelize";
 import AppError from "../../utils/appError";
 import { catchAsync } from "../../utils/catchAsync";
 import { createToken } from "../../utils/token";
-import Post from "../post/post.model";
-import User, { FriendList } from './user.model';
+import User from './user.model';
 
 export const checkUserId: RequestHandler = catchAsync(async(req, res, next) => {
     const user = await User.findByPk(req.params.id)
@@ -50,24 +48,6 @@ export const loginUser: RequestHandler = catchAsync(async(req, res, next) =>{
         data: user,
         token
     })
-})
-
-export const beFriends: RequestHandler = catchAsync( async(req, res, next) => {
-    const toUser = await User.findByPk(req.params.id)
-    if(toUser){
-        toUser.update(
-            { friends: literal(req.user.id)},
-            { where: { id: req.params.id}},
-            )
-        User.update(
-            { friends: literal(req.params.id)},
-            { where: { id: req.user.id}}
-            )
-            return res.status(200).json({
-                message: 'User added in successfully',
-                toUser,
-            })
-    }
 })
 
 export const retreiveUserById: RequestHandler = catchAsync(async(req, res, next) =>{

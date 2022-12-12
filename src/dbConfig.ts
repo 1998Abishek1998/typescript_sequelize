@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize-typescript";
 import Post from "./resources/post/post.model";
-import User, { FriendList } from "./resources/user/user.model";
+import User from "./resources/user/user.model";
 
 const connection = new Sequelize({
     dialect: "mysql",
@@ -12,7 +12,6 @@ const connection = new Sequelize({
     models: [
         Post,
         User,
-        FriendList
     ]
 })
 

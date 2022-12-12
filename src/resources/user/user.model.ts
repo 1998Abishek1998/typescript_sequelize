@@ -1,6 +1,6 @@
 import { compareSync, hashSync } from "bcrypt"
 import { DataTypes, UUIDV4 } from "sequelize";
-import { BeforeCreate, BelongsToMany, Column, DataType, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript"
+import { Column, DataType, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript"
 import Post from "../post/post.model";
 
 @Table({
@@ -53,9 +53,6 @@ class User extends Model{
     })
     role!: string
 
-    @BelongsToMany(() => User, () => FriendList, 'UserId', 'FriendId')
-    friends!: [];
-
     @Column({
         type: DataType.STRING,
         allowNull: false,
@@ -82,23 +79,6 @@ class User extends Model{
     static validatePassword(user: any, password: string): boolean{
         return compareSync(password, user.password)
     }
-    static addFriend(user:any): any{
-        console.log(user,'asdsad')
-    }
-}
-
-@Table
-export class FriendList extends Model{
-
-    @Column({
-        type: DataTypes.UUID
-    })
-    UserId?: string
-
-    @Column({
-        type: DataTypes.UUID
-    })
-    FriendId?: string
 }
 
 export default User
