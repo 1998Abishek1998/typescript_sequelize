@@ -13,10 +13,19 @@ export const checkUserId: RequestHandler = catchAsync(async(req, res, next) => {
 })
 
 export const createUser: RequestHandler = catchAsync(async(req, res, next) =>{
-    var user = await User.create({...req.body})
+    const {name, password} = req.body
+    if(!name || !password) return next(new AppError(400, 'Email and passwords cannot be empty'))
+
+    const newUser = await User.findOne({where: { name: name}})
+    if(!newUser) return next(new AppError(404, 'User not registered'))
+
+    const boolVal = User.validatePassword(newUser, req.body.password)
+    
+    if(!boolVal) return next(new AppError(404, 'Passwords did not matched'))
+    
     return res.status(200).json({
-        message: 'User created successfully',
-        data: user
+        message: 'User logged in successfully',
+        data: newUser
     })
 })
 
